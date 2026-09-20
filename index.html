@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Tiny Threat.exe</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #050505;
+    color: white;
+    font-family: "Courier New", monospace;
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+.screen {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: 25px;
+    text-align: center;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* BOOT SCREEN */
+
+#boot {
+    background: black;
+    align-items: flex-start;
+    text-align: left;
+    color: #ff4f78;
+}
+
+#terminal {
+    max-width: 700px;
+    width: 100%;
+    font-size: 15px;
+    line-height: 1.7;
+}
+
+.cursor {
+    animation: blink 0.8s infinite;
+}
+
+@keyframes blink {
+    50% {
+        opacity: 0;
+    }
+}
+
+/* MAIN SCREEN */
+
+#main {
+    background:
+        radial-gradient(circle at center, #24101b 0%, #090909 45%, #000 100%);
+}
+
+.badge {
+    color: #ff4f78;
+    letter-spacing: 5px;
+    font-size: 12px;
+    margin-bottom: 20px;
+}
+
+h1 {
+    font-size: clamp(42px, 10vw, 80px);
+    margin: 0;
+    text-shadow:
+        0 0 10px #ff315d,
+        0 0 40px #ff315d;
+}
+
+.subtitle {
+    color: #aaa;
+    margin-top: 15px;
+    font-size: 17px;
+}
+
+/* BUTTON */
+
+button {
+    margin-top: 30px;
+    padding: 14px 30px;
+    background: transparent;
+    color: white;
+    border: 1px solid #ff4169;
+    border-radius: 30px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    background: #ff4169;
+    box-shadow: 0 0 30px #ff4169;
+    transform: scale(1.08);
+}
+
+/* GAME */
+
+#game {
+    background: #080808;
+}
+
+.gamebox {
+    width: min(500px, 95%);
+    padding: 30px;
+    border: 1px solid #292929;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.03);
+    box-shadow: 0 0 50px rgba(255,50,90,0.1);
+}
+
+.progress {
+    width: 100%;
+    height: 6px;
+    background: #222;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 20px 0;
+}
+
+.progress-bar {
+    height: 100%;
+    width: 0%;
+    background: #ff4169;
+    transition: 0.5s;
+}
+
+.question {
+    font-size: 19px;
+    margin: 25px 0;
+}
+
+.options {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.option {
+    margin: 0;
+    min-width: 100px;
+}
+
+/* FINAL */
+
+#final {
+    background:
+        radial-gradient(circle, #35101d, #080808 65%);
+}
+
+.final-message {
+    max-width: 650px;
+    font-family: Arial, sans-serif;
+    line-height: 1.9;
+    font-size: 20px;
+    color: #ddd;
+}
+
+.final-message strong {
+    color: #ff5a7d;
+}
+
+.signature {
+    margin-top: 35px;
+    font-size: 17px;
+    color: #aaa;
+    font-style: italic;
+}
+
+/* HEARTS */
+
+.heart {
+    position: fixed;
+    pointer-events: none;
+    color: #ff4169;
+    animation: float 5s linear forwards;
+    z-index: 10;
+}
+
+@keyframes float {
+
+    from {
+        transform: translateY(100vh) scale(0.5);
+        opacity: 0;
+    }
+
+    20% {
+        opacity: 1;
+    }
+
+    to {
+        transform: translateY(-10vh) scale(1.4);
+        opacity: 0;
+    }
+
+}
+
+/* GLITCH */
+
+.glitch {
+    animation: glitch 0.3s infinite;
+}
+
+@keyframes glitch {
+
+    0% {
+        transform: translate(0);
+    }
+
+    25% {
+        transform: translate(2px,-2px);
+    }
+
+    50% {
+        transform: translate(-2px,2px);
+    }
+
+    75% {
+        transform: translate(2px,2px);
+    }
+
+    100% {
+        transform: translate(0);
+    }
+
+}
+
+</style>
+</head>
+
+<body>
+
+
+<!-- BOOT -->
+
+<section id="boot" class="screen">
+
+<div id="terminal"></div>
+
+</section>
+
+
+<!-- MAIN -->
+
+<section id="main" class="screen hidden">
+
+<div class="badge">CLASSIFIED MESSAGE</div>
+
+<h1>Tiny Threat ❤️</h1>
+
+<div class="subtitle">
+> A message from Fahad has been detected...
+</div>
+
+<button onclick="startGame()">
+ACCEPT MISSION →
+</button>
+
+</section>
+
+
+<!-- GAME -->
+
+<section id="game" class="screen hidden">
+
+<div class="gamebox">
+
+<div style="color:#ff4169;">
+MISSION PROGRESS
+</div>
+
+<div class="progress">
+<div class="progress-bar" id="progress"></div>
+</div>
+
+<div id="question" class="question"></div>
+
+<div id="options" class="options"></div>
+
+</div>
+
+</section>
+
+
+<!-- FINAL -->
+
+<section id="final" class="screen hidden">
+
+<div class="badge">ACCESS GRANTED ❤️</div>
+
+<h1>Hey, Tiny Threat...</h1>
+
+<div class="final-message">
+
+<p>
+I know I messed up.
+</p>
+
+<p>
+<strong>I'm sorry for what I've done.</strong> 🥺
+</p>
+
+<p>
+But this time, I really want to do better.
+<br>
+I'll take better care of us. 🤍
+</p>
+
+<p>
+No big promises.
+Just me trying to be better,
+and trying to take better care of what we have. 🫶🏻
+</p>
+
+<p>
+<strong>I love you. ❤️</strong>
+</p>
+
+<div class="signature">
+— Fahad 🖤
+</div>
+
+</div>
+
+</section>
+
+
+<script>
+
+/* ---------------- BOOT ---------------- */
+
+const bootLines = [
+
+    "INITIALIZING TinyThreat.exe...",
+    "Connecting to secret server...",
+    "Connection established.",
+    "Scanning target...",
+    "Target identified: TINY THREAT",
+    "Sender identified: FAHAD",
+    "Threat level: 100% 😭",
+    "Emotional damage detected...",
+    "Loading apology protocol...",
+    "Loading second chance protocol...",
+    "Final message secured.",
+    "ACCESS PROTOCOL READY ❤️"
+
+];
+
+let line = 0;
+
+function boot() {
+
+    if (line < bootLines.length) {
+
+        const terminal =
+            document.getElementById("terminal");
+
+        terminal.innerHTML +=
+            bootLines[line] + "<br>";
+
+        line++;
+
+        setTimeout(boot, 500);
+
+    } else {
+
+        setTimeout(() => {
+
+            document.getElementById("boot")
+                .classList.add("hidden");
+
+            document.getElementById("main")
+                .classList.remove("hidden");
+
+        }, 1000);
+
+    }
+
+}
+
+boot();
+
+
+/* ---------------- GAME ---------------- */
+
+let currentQuestion = 0;
+
+const questions = [
+
+{
+    question: "Who is this message secretly for?",
+    answers: [
+        "Nobody",
+        "Tiny Threat ❤️",
+        "Batman"
+    ],
+    correct: 1
+},
+
+{
+    question: "Who made this whole thing?",
+    answers: [
+        "Fahad",
+        "The FBI",
+        "Batman again"
+    ],
+    correct: 0
+},
+
+{
+    question: "Should Tiny Threat unlock the final message?",
+    answers: [
+        "No 😭",
+        "Maybe",
+        "Absolutely ❤️"
+    ],
+    correct: 2
+}
+
+];
+
+
+function startGame() {
+
+    document.getElementById("main")
+        .classList.add("hidden");
+
+    document.getElementById("game")
+        .classList.remove("hidden");
+
+    loadQuestion();
+
+}
+
+
+function loadQuestion() {
+
+    const q = questions[currentQuestion];
+
+    document.getElementById("question")
+        .innerText = q.question;
+
+    const options =
+        document.getElementById("options");
+
+    options.innerHTML = "";
+
+    q.answers.forEach((answer, index) => {
+
+        const button =
+            document.createElement("button");
+
+        button.className = "option";
+
+        button.innerText = answer;
+
+        button.onclick = () =>
+            answerQuestion(index);
+
+        options.appendChild(button);
+
+    });
+
+    document.getElementById("progress")
+        .style.width =
+        ((currentQuestion) /
+        questions.length * 100) + "%";
+
+}
+
+
+function answerQuestion(index) {
+
+    const q = questions[currentQuestion];
+
+    if (index === q.correct) {
+
+        currentQuestion++;
+
+        createHearts();
+
+        if (currentQuestion >= questions.length) {
+
+            document.getElementById("game")
+                .classList.add("hidden");
+
+            document.getElementById("final")
+                .classList.remove("hidden");
+
+            finalEffect();
+
+        } else {
+
+            loadQuestion();
+
+        }
+
+    } else {
+
+        document.querySelector(".gamebox")
+            .classList.add("glitch");
+
+        setTimeout(() => {
+
+            document.querySelector(".gamebox")
+                .classList.remove("glitch");
+
+        }, 400);
+
+        alert(
+            "ACCESS DENIED 💀\n\n" +
+            "Nice try, Tiny Threat 😭\n" +
+            "Try again."
+        );
+
+    }
+
+}
+
+
+/* ---------------- HEARTS ---------------- */
+
+function createHearts() {
+
+    for (let i = 0; i < 15; i++) {
+
+        const heart =
+            document.createElement("div");
+
+        heart.className = "heart";
+
+        heart.innerHTML =
+            Math.random() > 0.5
+            ? "♥"
+            : "♡";
+
+        heart.style.left =
+            Math.random() * 100 + "vw";
+
+        heart.style.fontSize =
+            (15 + Math.random() * 25) + "px";
+
+        document.body.appendChild(heart);
+
+        setTimeout(() => {
+
+            heart.remove();
+
+        }, 5000);
+
+    }
+
+}
+
+
+/* ---------------- FINAL EFFECT ---------------- */
+
+function finalEffect() {
+
+    for (let i = 0; i < 50; i++) {
+
+        setTimeout(
+            createHearts,
+            i * 80
+        );
+
+    }
+
+}
+
+</script>
+
+</body>
+</html>
